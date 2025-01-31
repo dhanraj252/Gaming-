@@ -1,0 +1,251 @@
+# Re-create the ZIP file since the execution state was reset
+
+
+
+import zipfile
+
+
+
+# Define the path for the zip file
+
+zip_file_path = "/mnt/data/Simple_Shooter_Game.zip"
+
+
+
+# Create a zip file with the game files
+
+with zipfile.ZipFile(zip_file_path, "w") as zipf:
+
+    zipf.writestr("index.html", """<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simple Shooter Game</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+    <h1>Simple Shooter Game</h1>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
+
+""")
+
+
+
+    zipf.writestr("styles.css", """body {
+
+    text-align: center;
+
+    background-color: #222;
+
+    color: white;
+
+    font-family: Arial, sans-serif;
+
+}
+
+
+
+canvas {
+
+    border: 2px solid white;
+
+    background-color: black;
+
+}""")
+
+
+
+    zipf.writestr("script.js", """// Get canvas & context
+
+const canvas = document.getElementById("gameCanvas");
+
+const ctx = canvas.getContext("2d");
+
+
+
+// Canvas size
+
+canvas.width = 800;
+
+canvas.height = 400;
+
+
+
+// Player properties
+
+const player = {
+
+    x: 50,
+
+    y: 300,
+
+    width: 40,
+
+    height: 40,
+
+    color: "green",
+
+    speed: 5
+
+};
+
+
+
+// Bullets & Enemies
+
+let bullets = [];
+
+let enemies = [];
+
+
+
+// Player Controls
+
+document.addEventListener("keydown", (e) => {
+
+    if (e.code === "ArrowRight") player.x += player.speed;
+
+    if (e.code === "ArrowLeft") player.x -= player.speed;
+
+    if (e.code === "Space") shootBullet();
+
+});
+
+
+
+// Function to shoot bullets
+
+function shootBullet() {
+
+    bullets.push({ x: player.x + 30, y: player.y + 10, width: 10, height: 5, speed: 7 });
+
+}
+
+
+
+// Function to spawn enemies
+
+setInterval(() => {
+
+    enemies.push({ x: 800, y: 300, width: 40, height: 40, color: "red", speed: 3 });
+
+}, 2000);
+
+
+
+// Update game state
+
+function update() {
+
+    // Move bullets
+
+    bullets.forEach(bullet => bullet.x += bullet.speed);
+
+    
+
+    // Move enemies
+
+    enemies.forEach(enemy => enemy.x -= enemy.speed);
+
+
+
+    // Check collision
+
+    bullets.forEach((bullet, bIndex) => {
+
+        enemies.forEach((enemy, eIndex) => {
+
+            if (bullet.x < enemy.x + enemy.width &&
+
+                bullet.x + bullet.width > enemy.x &&
+
+                bullet.y < enemy.y + enemy.height &&
+
+                bullet.y + bullet.height > enemy.y) {
+
+                enemies.splice(eIndex, 1);
+
+                bullets.splice(bIndex, 1);
+
+            }
+
+        });
+
+    });
+
+}
+
+
+
+// Draw everything
+
+function draw() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    
+
+    // Draw player
+
+    ctx.fillStyle = player.color;
+
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    
+
+    // Draw bullets
+
+    ctx.fillStyle = "yellow";
+
+    bullets.forEach(bullet => ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height));
+
+    
+
+    // Draw enemies
+
+    ctx.fillStyle = "red";
+
+    enemies.forEach(enemy => ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height));
+
+}
+
+
+
+// Game loop
+
+function gameLoop() {
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+
+
+// Start the game
+
+gameLoop();""")
+
+
+
+zip_file_path
